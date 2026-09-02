@@ -1,0 +1,733 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>أذكار الصباح والمساء - كروان</title>
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            background-color: #1A1813;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='80' height='80' viewBox='0 0 80 80'%3E%3Cg opacity='0.12'%3E%3Ccircle cx='40' cy='43' r='20' fill='%23FFE082'/%3E%3Cpath d='M30 23 C32 12, 42 15, 40 25 C45 16, 52 22, 44 29' fill='%23FFE082'/%3E%3Ccircle cx='28' cy='43' r='5.5' fill='%23FF8A65'/%3E%3Ccircle cx='52' cy='43' r='5.5' fill='%23FF8A65'/%3E%3Ccircle cx='35' cy='39' r='2.5' fill='%233E2723'/%3E%3Ccircle cx='45' cy='39' r='2.5' fill='%233E2723'/%3E%3Cpolygon points='40,40 37,45 43,45' fill='%23FFB74D'/%3E%3C/g%3E%3C/svg%3E");
+            background-repeat: repeat;
+            color: #E0E0E0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 15px;
+            touch-action: manipulation;
+            overflow: hidden;
+            position: relative;
+        }
+
+        /* شريط الأدوات العلوي الرئيسي (الجهة اليمنى) */
+        .top-bar-right {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            z-index: 50;
+        }
+
+        /* شريط الأدوات العلوي (الجهة اليسرى) */
+        .top-bar-left {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            z-index: 50;
+        }
+
+        /* الأزرار العلوية المكبرة */
+        .custom-btn {
+            background-color: #252219;
+            color: #FFE082;
+            border: 1px solid #443C28;
+            padding: 8px 16px;
+            border-radius: 24px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 1.05rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.5);
+            transition: all 0.2s ease;
+            height: 46px;
+            user-select: none;
+        }
+
+        .btn-icon-only {
+            padding: 8px 14px;
+            min-width: 52px;
+        }
+
+        .custom-btn:active {
+            transform: scale(0.92);
+            background-color: #2E291C;
+        }
+
+        /* أيقونة الكروان المائل المطابقة للصورة المرفقة */
+        .tilted-cockatiel {
+            width: 32px;
+            height: 32px;
+            transition: transform 0.3s ease;
+        }
+
+        .custom-btn:hover .tilted-cockatiel {
+            transform: rotate(-8deg) scale(1.1);
+        }
+
+        /* مفتاح التبديل المكبر (Toggle Switch) */
+        .toggle-switch {
+            width: 82px;
+            height: 46px;
+            background-color: #252219;
+            border: 1px solid #443C28;
+            border-radius: 24px;
+            position: relative;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 9px;
+            box-shadow: inset 0 2px 4px rgba(0,0,0,0.6), 0 4px 10px rgba(0,0,0,0.4);
+            user-select: none;
+        }
+
+        .toggle-icon {
+            font-size: 18px;
+            z-index: 2;
+            transition: opacity 0.3s ease;
+            filter: grayscale(100%) opacity(0.8);
+        }
+
+        .toggle-thumb {
+            width: 32px;
+            height: 32px;
+            background-color: #FFCA28;
+            border-radius: 50%;
+            position: absolute;
+            top: 6px;
+            right: 6px;
+            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), background-color 0.3s ease;
+            z-index: 1;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.4);
+        }
+
+        .toggle-switch.evening .toggle-thumb {
+            transform: translateX(-40px);
+            background-color: #FFA000;
+        }
+
+        /* القائمة الجانبية (الفهرس) */
+        .sidebar {
+            position: fixed;
+            top: 0;
+            right: -300px;
+            width: 280px;
+            height: 100%;
+            background-color: #1F1C14;
+            box-shadow: -5px 0 20px rgba(0,0,0,0.8);
+            z-index: 100;
+            transition: right 0.3s ease;
+            display: flex;
+            flex-direction: column;
+            padding: 20px 15px;
+        }
+
+        .sidebar.open {
+            right: 0;
+        }
+
+        .sidebar-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid #3A3322;
+            padding-bottom: 15px;
+            margin-bottom: 15px;
+            color: #FFE082;
+            font-size: 1.1rem;
+            font-weight: bold;
+        }
+
+        .close-btn {
+            background: none;
+            border: none;
+            color: #FFE082;
+            font-size: 1.5rem;
+            cursor: pointer;
+        }
+
+        .index-list {
+            list-style: none;
+            overflow-y: auto;
+            flex: 1;
+        }
+
+        .index-item {
+            padding: 12px 10px;
+            border-bottom: 1px solid #2C271B;
+            color: #DDD;
+            cursor: pointer;
+            font-size: 0.95rem;
+            transition: background 0.2s;
+            border-radius: 6px;
+            margin-bottom: 4px;
+            text-align: right;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .index-item:hover, .index-item.active {
+            background-color: #2E291C;
+            color: #FFE082;
+            font-weight: bold;
+        }
+
+        /* غطاء شفاف */
+        .overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.6);
+            z-index: 90;
+            display: none;
+        }
+
+        .overlay.show {
+            display: block;
+        }
+
+        /* كارت الذكر الرئيسي */
+        .card-container {
+            width: 100%;
+            max-width: 500px;
+            perspective: 1000px;
+            margin-top: 50px;
+        }
+
+        .card {
+            background-color: #242017;
+            border: 1px solid #3A3220;
+            border-radius: 20px;
+            padding: 25px 20px;
+            width: 100%;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.7);
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            min-height: 480px;
+            text-align: center;
+            user-select: none;
+            position: relative;
+            z-index: 10;
+            cursor: pointer;
+            transition: transform 0.3s ease, opacity 0.3s ease;
+        }
+
+        .card:active {
+            transform: scale(0.99);
+        }
+
+        .slide-out-right { transform: translateX(100%) rotate(5deg); opacity: 0; }
+        .slide-out-left { transform: translateX(-100%) rotate(-5deg); opacity: 0; }
+
+        .slide-in-right { animation: slideInRight 0.3s forwards ease-out; }
+        .slide-in-left { animation: slideInLeft 0.3s forwards ease-out; }
+
+        @keyframes slideInRight {
+            from { transform: translateX(-100%) rotate(-5deg); opacity: 0; }
+            to { transform: translateX(0) rotate(0deg); opacity: 1; }
+        }
+
+        @keyframes slideInLeft {
+            from { transform: translateX(100%) rotate(5deg); opacity: 0; }
+            to { transform: translateX(0) rotate(0deg); opacity: 1; }
+        }
+
+        .header {
+            font-size: 1.1rem;
+            color: #FFE082;
+            font-weight: bold;
+            margin-bottom: 15px;
+            pointer-events: none;
+        }
+
+        .content {
+            font-size: 1.35rem;
+            line-height: 2;
+            color: #FFFFFF;
+            margin: auto 0;
+            padding: 10px 5px;
+            word-wrap: break-word;
+            pointer-events: none;
+        }
+
+        .sub-note {
+            display: block;
+            font-size: 1rem;
+            color: #B0A282;
+            margin-top: 12px;
+            font-weight: normal;
+        }
+
+        .counter-btn {
+            background-color: #FFCA28;
+            color: #1A1813;
+            border: none;
+            padding: 18px;
+            border-radius: 14px;
+            font-size: 1.25rem;
+            font-weight: bold;
+            margin: 15px 0;
+            transition: background-color 0.2s;
+            pointer-events: none;
+        }
+
+        .counter-btn.done {
+            background-color: #FFA000;
+            color: #FFFFFF;
+        }
+
+        .nav-controls {
+            display: flex;
+            justify-content: space-between;
+            gap: 12px;
+        }
+
+        /* أزرار التصفح المكبرة */
+        .nav-btn {
+            background-color: #2E291D;
+            color: #FFE082;
+            border: 1px solid #FFE082;
+            padding: 12px 18px;
+            border-radius: 14px;
+            cursor: pointer;
+            font-size: 1.1rem;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            transition: all 0.2s;
+            flex: 1;
+            justify-content: center;
+            z-index: 20;
+            height: 48px;
+        }
+
+        .nav-btn:disabled {
+            border-color: #443C28;
+            color: #665C44;
+            cursor: not-allowed;
+            background-color: #1A1813;
+        }
+
+        .nav-btn:disabled .cockatiel-icon {
+            opacity: 0.3;
+            animation: none !important;
+        }
+
+        .cockatiel-icon {
+            width: 30px;
+            height: 30px;
+            display: inline-block;
+            vertical-align: middle;
+        }
+
+        .cockatiel-prev { animation: bounceRight 1.2s infinite alternate; }
+        .cockatiel-next { animation: bounceLeft 1.2s infinite alternate; }
+
+        @keyframes bounceLeft {
+            0% { transform: translateX(0); }
+            100% { transform: translateX(-5px); }
+        }
+
+        @keyframes bounceRight {
+            0% { transform: translateX(0); }
+            100% { transform: translateX(5px); }
+        }
+    </style>
+</head>
+<body>
+
+<!-- جهة اليمين: الفهرس والمؤشر الليل/النهار -->
+<div class="top-bar-right">
+    <button class="custom-btn" onclick="toggleSidebar(event)">
+        ☰ الفهرس
+    </button>
+    <div class="toggle-switch" id="toggle-switch" onclick="toggleMode()" title="التبديل بين الصباح والمساء">
+        <span class="toggle-icon">☀️</span>
+        <span class="toggle-icon">🌙</span>
+        <div class="toggle-thumb"></div>
+    </div>
+</div>
+
+<!-- جهة اليسار: زر أيقونة الكروان المائل بدون كلمة "غرد" وبحجم أكبر -->
+<div class="top-bar-left">
+    <button class="custom-btn btn-icon-only" onclick="playCockatielChirp()" title="صوت الكروان">
+        <svg class="tilted-cockatiel" viewBox="0 0 100 100">
+            <!-- خلفية بيضاء كحد خارجي ناعم مطابق للستيكر -->
+            <ellipse cx="50" cy="52" rx="42" ry="40" fill="#FFFFFF" transform="rotate(-15 50 50)"/>
+            
+            <!-- الكروان المائل اللطيف المطابق للصورة تماماً -->
+            <g transform="rotate(-18 50 50)">
+                <!-- الجسم الكروي الأبيض الناعم -->
+                <ellipse cx="48" cy="58" rx="34" ry="32" fill="#FFFDE7" stroke="#3E2723" stroke-width="2.5"/>
+                
+                <!-- الرأس الأصفر المائل -->
+                <circle cx="55" cy="38" r="24" fill="#FFE082" stroke="#3E2723" stroke-width="2.5"/>
+                
+                <!-- العرف الأصفر المميز والمنحني للأعلى -->
+                <path d="M 60 18 Q 85 8 92 25 Q 75 25 68 30 Z" fill="#FFE082" stroke="#3E2723" stroke-width="2.5" stroke-linejoin="round"/>
+                
+                <!-- الخدود البرتقالية الحمراء الكبيرة -->
+                <circle cx="36" cy="42" r="8.5" fill="#FF5722"/>
+                <circle cx="65" cy="50" r="8.5" fill="#FF5722"/>
+                
+                <!-- العينين الكيوت مع نقط اللمعان -->
+                <circle cx="48" cy="32" r="4" fill="#3E2723"/>
+                <circle cx="46.5" cy="30.5" r="1.5" fill="#FFFFFF"/>
+                
+                <circle cx="68" cy="42" r="3.5" fill="#3E2723"/>
+                <circle cx="67" cy="41" r="1.2" fill="#FFFFFF"/>
+                
+                <!-- المنقار الوردي البرتقالي المائل -->
+                <ellipse cx="56" cy="44" rx="5" ry="6" fill="#FFB74D" stroke="#3E2723" stroke-width="2"/>
+                
+                <!-- الأقدام الصغار -->
+                <path d="M 38 88 L 36 95 M 42 88 L 42 96 M 52 87 L 54 95 M 58 87 L 60 94" stroke="#FFB74D" stroke-width="3" stroke-linecap="round"/>
+            </g>
+        </svg>
+    </button>
+</div>
+
+<div class="overlay" id="overlay" onclick="toggleSidebar(event)"></div>
+
+<div class="sidebar" id="sidebar">
+    <div class="sidebar-header">
+        <span id="sidebar-title">فهرس أذكار الصباح</span>
+        <button class="close-btn" onclick="toggleSidebar(event)">&times;</button>
+    </div>
+    <ul class="index-list" id="index-list">
+    </ul>
+</div>
+
+<div class="card-container">
+    <div class="card" id="azkar-card" onclick="handleCardClick(event)">
+        <div class="header" id="page-num">
+            الذكر 1 من 20
+        </div>
+
+        <div class="content" id="azkar-text">
+        </div>
+
+        <div class="counter-btn" id="count-btn">
+            التكرار المتبقي: <span id="count-num">1</span>
+        </div>
+
+        <div class="nav-controls">
+            <!-- زر السابق -->
+            <button class="nav-btn" id="prev-btn" onclick="prevCard(event)">
+                <svg class="cockatiel-icon cockatiel-prev" viewBox="0 0 100 100">
+                    <g transform="rotate(-15 50 50)">
+                        <ellipse cx="48" cy="58" rx="34" ry="32" fill="#FFFDE7" stroke="#3E2723" stroke-width="3"/>
+                        <circle cx="55" cy="38" r="24" fill="#FFE082" stroke="#3E2723" stroke-width="3"/>
+                        <path d="M 60 18 Q 85 8 92 25 Q 75 25 68 30 Z" fill="#FFE082" stroke="#3E2723" stroke-width="3"/>
+                        <circle cx="36" cy="42" r="8" fill="#FF5722"/>
+                        <circle cx="48" cy="32" r="4" fill="#3E2723"/>
+                        <circle cx="46.5" cy="30.5" r="1.5" fill="#FFFFFF"/>
+                        <ellipse cx="56" cy="44" rx="5" ry="6" fill="#FFB74D" stroke="#3E2723" stroke-width="2"/>
+                    </g>
+                </svg>
+                السابق
+            </button>
+
+            <!-- زر التالي -->
+            <button class="nav-btn" id="next-btn" onclick="nextCard(event)">
+                التالي
+                <svg class="cockatiel-icon cockatiel-next" viewBox="0 0 100 100">
+                    <g transform="scale(-1, 1) translate(-100, 0) rotate(-15 50 50)">
+                        <ellipse cx="48" cy="58" rx="34" ry="32" fill="#FFFDE7" stroke="#3E2723" stroke-width="3"/>
+                        <circle cx="55" cy="38" r="24" fill="#FFE082" stroke="#3E2723" stroke-width="3"/>
+                        <path d="M 60 18 Q 85 8 92 25 Q 75 25 68 30 Z" fill="#FFE082" stroke="#3E2723" stroke-width="3"/>
+                        <circle cx="36" cy="42" r="8" fill="#FF5722"/>
+                        <circle cx="48" cy="32" r="4" fill="#3E2723"/>
+                        <circle cx="46.5" cy="30.5" r="1.5" fill="#FFFFFF"/>
+                        <ellipse cx="56" cy="44" rx="5" ry="6" fill="#FFB74D" stroke="#3E2723" stroke-width="2"/>
+                    </g>
+                </svg>
+            </button>
+        </div>
+    </div>
+</div>
+
+<script>
+    const azkarMorning = [
+        { text: "أعوذ بكلمات الله التامات من شر ما خلق", note: "ثلاث مرات", count: 3 },
+        { text: "أعوذ بكلمات الله التامة من كل شيطان وهامة ومن كل عين لامة", note: "ثلاث مرات", count: 3 },
+        { text: "سبحان الله وبحمده عدد خلقه ورضا نفسه وزنة عرشه ومداد كلماته", note: "ثلاث مرات", count: 3 },
+        { text: "اللهم إني أسألك علماً نافعاً ورزقاً طيباً وعملاً متقبلاً", count: 1 },
+        { text: "اللهم صل وسلم على نبينا محمد", note: "عشر مرات", count: 10 },
+        { text: "اللهم إني أسألك العافية في الدنيا والآخرة، اللهم إني أسألك العفو والعافية في ديني ودنياي وأهلي ومالي، اللهم استر عوراتي وآمن روعاتي، اللهم احفظني من بين يدي ومن خلفي وعن يميني وعن شمالي ومن فوقي وأعوذ بعظمتك أن أغتال من تحتي", count: 1 },
+        { text: "اللهم عالم الغيب والشهادة فاطر السماوات والأرض، رب كل شيء ومليكه، أشهد أن لا إله إلا أنت، أعوذ بك من شر نفسي، ومن شر الشيطان وشركه، وأن أقترف على نفسي سوءاً، أو أجرّه إلى مسلم", count: 1 },
+        { text: "بسم الله الذي لا يضر مع اسمه شيء في الأرض ولا في السماء وهو السميع العليم", note: "ثلاث مرات", count: 3 },
+        { text: "رضيت بالله رباً، وبالإسلام ديناً، وبمحمد صلى الله عليه وسلم نبياً", note: "ثلاث مرات", count: 3 },
+        { text: "يا حي يا قيوم برحمتك أستغيث، أصلح لي شأني كله ولا تكلني إلى نفسي طرفة عين", count: 1 },
+        { text: "أصبحنا وأصبح الملك لله رب العالمين، اللهم إني أسألك خير هذا اليوم فتحه ونصره ونوره وبركته وهداه، وأعوذ بك من شر ما فيه وشر ما بعده", count: 1 },
+        { text: "أصبحنا على فطرة الإسلام وعلى كلمة الإخلاص وعلى دين نبينا محمد صلى الله عليه وسلم وعلى ملة أبينا إبراهيم حنيفاً مسلماً وما كان من المشركين", count: 1 },
+        { text: "لا إله إلا الله وحده لا شريك له، له الملك وله الحمد وهو على كل شيء قدير", note: "عشر مرات أو مرة واحدة عند الكسل", count: 10 },
+        { text: "أصبحنا وأصبح الملك لله، والحمد لله، لا إله إلا الله وحده لا شريك له، له الملك وله الحمد وهو على كل شيء قدير، رب أسألك خير ما في هذا اليوم وخير ما بعده، وأعوذ بك من شر ما في هذا اليوم وشر ما بعده", count: 1 },
+        { text: "اللهم بك أصبحنا، وبك أمسينا، وبك نحيا، وبك نموت، وإليك النشور", count: 1 },
+        { text: "اللهم أنت ربي لا إله إلا أنت، خلقتني وأنا عبدك، وأنا على عهدك ووعدك ما استطعت، أعوذ بك من شر ما صنعت، أبوء لك بنعمتك علي، وأبوء بذنبي فاغفر لي فإنه لا يغفر الذنوب إلا أنت", count: 1 },
+        { text: "اللهم إني أصبحت أُشهدك وأُشهد حملة عرشك وملائكتك وجميع خلقك أنك أنت الله لا إله إلا أنت وحدك لا شريك لك وأن محمداً عبدك ورسولك", note: "أربع مرات", count: 4 },
+        { text: "اللهم ما أصبح بي من نعمة أو بأحد من خلقك فمنك وحدك لا شريك لك فلك الحمد ولك الشكر", count: 1 },
+        { text: "اللهم عافني في بدني، اللهم عافني في سمعي، اللهم عافني في بصري، لا إله إلا أنت. اللهم إني أعوذ بك من الكفر، والفقر، اللهم إني أعوذ بك من عذاب القبر لا إله إلا أنت", note: "ثلاث مرات", count: 3 },
+        { text: "حسبي الله لا إله إلا هو عليه توكلت وهو رب العرش العظيم", note: "سبع مرات", count: 7 }
+    ];
+
+    const azkarEvening = [
+        { text: "أعوذ بكلمات الله التامات من شر ما خلق", note: "ثلاث مرات", count: 3 },
+        { text: "أعوذ بكلمات الله التامة من كل شيطان وهامة ومن كل عين لامة", note: "ثلاث مرات", count: 3 },
+        { text: "سبحان الله وبحمده عدد خلقه ورضا نفسه وزنة عرشه ومداد كلماته", note: "ثلاث مرات", count: 3 },
+        { text: "اللهم إني أسألك علماً نافعاً ورزقاً طيباً وعملاً متقبلاً", count: 1 },
+        { text: "اللهم صل وسلم على نبينا محمد", note: "عشر مرات", count: 10 },
+        { text: "اللهم إني أسألك العافية في الدنيا والآخرة، اللهم إني أسألك العفو والعافية في ديني ودنياي وأهلي ومالي، اللهم استر عوراتي وآمن روعاتي، اللهم احفظني من بين يدي ومن خلفي وعن يميني وعن شمالي ومن فوقي وأعوذ بعظمتك أن أغتال من تحتي", count: 1 },
+        { text: "اللهم عالم الغيب والشهادة فاطر السماوات والأرض، رب كل شيء ومليكه، أشهد أن لا إله إلا أنت، أعوذ بك من شر نفسي، ومن شر الشيطان وشركه، وأن أقترف على نفسي سوءاً، أو أجرّه إلى مسلم", count: 1 },
+        { text: "بسم الله الذي لا يضر مع اسمه شيء في الأرض ولا في السماء وهو السميع العليم", note: "ثلاث مرات", count: 3 },
+        { text: "رضيت بالله رباً، وبالإسلام ديناً، وبمحمد صلى الله عليه وسلم نبياً", note: "ثلاث مرات", count: 3 },
+        { text: "يا حي يا قيوم برحمتك أستغيث، أصلح لي شأني كله ولا تكلني إلى نفسي طرفة عين", count: 1 },
+        { text: "أمسينا وأمسى الملك لله رب العالمين، اللهم إني أسألك خير هذه الليلة فتحها ونصرها ونورها وبركتها وهداها، وأعوذ بك من شر ما فيها وشر ما بعدها", count: 1 },
+        { text: "أمسينا على فطرة الإسلام وعلى كلمة الإخلاص وعلى دين نبينا محمد صلى الله عليه وسلم وعلى ملة أبينا إبراهيم حنيفاً مسلماً وما كان من المشركين", count: 1 },
+        { text: "لا إله إلا الله وحده لا شريك له، له الملك وله الحمد وهو على كل شيء قدير", note: "عشر مرات أو مرة واحدة عند الكسل", count: 10 },
+        { text: "أمسينا وأمسى الملك لله، والحمد لله، لا إله إلا الله وحده لا شريك له، له الملك وله الحمد وهو على كل شيء قدير، رب أسألك خير ما في هذه الليلة وخير ما بعدها، وأعوذ بك من شر ما في هذه الليلة وشر ما بعدها", count: 1 },
+        { text: "اللهم بك أمسينا، وبك أصبحنا، وبك نحيا، وبك نموت، وإليك المصير", count: 1 },
+        { text: "اللهم أنت ربي لا إله إلا أنت، خلقتني وأنا عبدك، وأنا على عهدك ووعدك ما استطعت، أعوذ بك من شر ما صنعت، أبوء لك بنعمتك علي، وأبوء بذنبي فاغفر لي فإنه لا يغفر الذنوب إلا أنت", count: 1 },
+        { text: "اللهم إني أمسيت أُشهدك وأُشهد حملة عرشك وملائكتك وجميع خلقك أنك أنت الله لا إله إلا أنت وحدك لا شريك لك وأن محمداً عبدك ورسولك", note: "أربع مرات", count: 4 },
+        { text: "اللهم ما أمسى بي من نعمة أو بأحد من خلقك فمنك وحدك لا شريك لك فلك الحمد ولك الشكر", count: 1 },
+        { text: "اللهم عافني في بدني، اللهم عافني في سمعي، اللهم عافني في بصري، لا إله إلا أنت. اللهم إني أعوذ بك من الكفر، والفقر، اللهم إني أعوذ بك من عذاب القبر لا إله إلا أنت", note: "ثلاث مرات", count: 3 },
+        { text: "حسبي الله لا إله إلا هو عليه توكلت وهو رب العرش العظيم", note: "سبع مرات", count: 7 }
+    ];
+
+    let isEveningMode = false;
+    let currentAzkar = azkarMorning;
+    let currentIndex = 0;
+    let currentCount = currentAzkar[0].count;
+    let isAnimating = false;
+
+    // دالة محاكاة صوت تغريد الكروان
+    function playCockatielChirp() {
+        try {
+            const AudioContext = window.AudioContext || window.webkitAudioContext;
+            if (!AudioContext) return;
+            const ctx = new AudioContext();
+            
+            const osc = ctx.createOscillator();
+            const gain = ctx.createGain();
+            
+            osc.type = 'sine';
+            const now = ctx.currentTime;
+            
+            osc.frequency.setValueAtTime(1750, now);
+            osc.frequency.exponentialRampToValueAtTime(2800, now + 0.08);
+            osc.frequency.exponentialRampToValueAtTime(2100, now + 0.18);
+            
+            gain.gain.setValueAtTime(0.3, now);
+            gain.gain.exponentialRampToValueAtTime(0.01, now + 0.22);
+            
+            osc.connect(gain);
+            gain.connect(ctx.destination);
+            
+            osc.start(now);
+            osc.stop(now + 0.22);
+        } catch(e) {}
+    }
+
+    function toggleMode() {
+        isEveningMode = !isEveningMode;
+        
+        const toggleSwitch = document.getElementById('toggle-switch');
+        const sidebarTitle = document.getElementById('sidebar-title');
+
+        if (isEveningMode) {
+            currentAzkar = azkarEvening;
+            toggleSwitch.classList.add('evening');
+            sidebarTitle.innerText = "فهرس أذكار المساء";
+        } else {
+            currentAzkar = azkarMorning;
+            toggleSwitch.classList.remove('evening');
+            sidebarTitle.innerText = "فهرس أذكار الصباح";
+        }
+
+        if (currentIndex >= currentAzkar.length) {
+            currentIndex = currentAzkar.length - 1;
+        }
+
+        renderCard();
+    }
+
+    function initIndex() {
+        const list = document.getElementById('index-list');
+        list.innerHTML = '';
+        currentAzkar.forEach((item, idx) => {
+            const li = document.createElement('li');
+            li.className = `index-item ${idx === currentIndex ? 'active' : ''}`;
+            li.innerText = `${idx + 1}. ${item.text}`;
+            li.onclick = (e) => {
+                e.stopPropagation();
+                if (idx !== currentIndex) {
+                    const direction = idx > currentIndex ? 'next' : 'prev';
+                    changeCardWithAnimation(idx, direction);
+                }
+                toggleSidebar(e);
+            };
+            list.appendChild(li);
+        });
+    }
+
+    function renderCard() {
+        const item = currentAzkar[currentIndex];
+        document.getElementById('page-num').innerText = `الذكر ${currentIndex + 1} من ${currentAzkar.length}`;
+        
+        let htmlContent = item.text;
+        if (item.note) {
+            htmlContent += `<span class="sub-note">(${item.note})</span>`;
+        }
+        document.getElementById('azkar-text').innerHTML = htmlContent;
+        
+        currentCount = item.count;
+        updateCounterButton();
+
+        document.getElementById('prev-btn').disabled = (currentIndex === 0);
+        document.getElementById('next-btn').disabled = (currentIndex === currentAzkar.length - 1);
+
+        initIndex();
+    }
+
+    function changeCardWithAnimation(newIndex, direction) {
+        if (isAnimating) return;
+        isAnimating = true;
+
+        const card = document.getElementById('azkar-card');
+        const outClass = direction === 'next' ? 'slide-out-right' : 'slide-out-left';
+        const inClass = direction === 'next' ? 'slide-in-right' : 'slide-in-left';
+
+        card.classList.add(outClass);
+
+        setTimeout(() => {
+            currentIndex = newIndex;
+            renderCard();
+            card.classList.remove(outClass);
+            card.classList.add(inClass);
+
+            setTimeout(() => {
+                card.classList.remove(inClass);
+                isAnimating = false;
+            }, 300);
+        }, 250);
+    }
+
+    function updateCounterButton() {
+        const btn = document.getElementById('count-btn');
+        if (currentCount > 0) {
+            btn.classList.remove('done');
+            btn.innerText = `التكرار المتبقي: ${currentCount}`;
+        } else {
+            btn.classList.add('done');
+            btn.innerText = "أحسنت! أتممت هذا الذكر ✓";
+        }
+    }
+
+    function triggerCelebration() {
+        if (typeof confetti === 'function') {
+            confetti({
+                particleCount: 80,
+                spread: 70,
+                origin: { y: 0.6 },
+                colors: ['#FFE082', '#FFCA28', '#FFB74D', '#FFFFFF']
+            });
+        }
+    }
+
+    function handleCardClick(event) {
+        if (isAnimating || event.target.closest('.nav-btn') || event.target.closest('.custom-btn') || event.target.closest('.toggle-switch')) return;
+
+        if (currentCount > 0) {
+            currentCount--;
+            updateCounterButton();
+            if (currentCount === 0) {
+                triggerCelebration();
+                setTimeout(() => {
+                    nextCard();
+                }, 1000);
+            }
+        }
+    }
+
+    function nextCard(event) {
+        if (event) event.stopPropagation();
+        if (currentIndex < currentAzkar.length - 1) {
+            changeCardWithAnimation(currentIndex + 1, 'next');
+        }
+    }
+
+    function prevCard(event) {
+        if (event) event.stopPropagation();
+        if (currentIndex > 0) {
+            changeCardWithAnimation(currentIndex - 1, 'prev');
+        }
+    }
+
+    function toggleSidebar(event) {
+        if (event) event.stopPropagation();
+        const sidebar = document.getElementById('sidebar');
+        const overlay = document.getElementById('overlay');
+        sidebar.classList.toggle('open');
+        overlay.classList.toggle('show');
+    }
+
+    let startX = 0;
+    let endX = 0;
+    const cardElement = document.getElementById('azkar-card');
+
+    cardElement.addEventListener('touchstart', function(e) {
+        startX = e.changedTouches[0].screenX;
+    }, false);
+
+    cardElement.addEventListener('touchend', function(e) {
+        endX = e.changedTouches[0].screenX;
+        handleSwipe();
+    }, false);
+
+    function handleSwipe() {
+        const threshold = 40;
+        if (endX - startX > threshold) {
+            nextCard();
+        } else if (startX - endX > threshold) {
+            prevCard();
+        }
+    }
+
+    renderCard();
+</script>
+
+</body>
+</html>
