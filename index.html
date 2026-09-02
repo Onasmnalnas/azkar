@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>أذكار الصباح</title>
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.5.1/dist/confetti.browser.min.js"></script>
+  <style>
+    :root {
+      --bg-color: #121212;
+      --card-bg: #1e1e1e;
+      --text-main: #f5f5f5;
+      --accent: #ff80ab;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; user-select: none; }
+    body {
+      background-color: var(--bg-color);
+      color: var(--text-main);
+      font-family: system-ui, -apple-system, sans-serif;
+      display: flex; flex-direction: column; align-items: center; justify-content: space-between;
+      min-height: 100vh; padding: 20px;
+    }
+    header { width: 100%; text-align: center; padding: 10px 0; border-bottom: 1px solid #333; }
+    h1 { color: var(--accent); font-size: 1.3rem; }
+    .main-container { flex: 1; display: flex; flex-direction: column; justify-content: center; width: 100%; max-width: 400px; }
+    .card { background: var(--card-bg); border-radius: 16px; padding: 25px; text-align: center; box-shadow: 0 4px 15px rgba(0,0,0,0.5); }
+    .zekr-text { font-size: 1.2rem; line-height: 1.8; margin-bottom: 25px; min-height: 100px; display: flex; align-items: center; justify-content: center; }
+    .counter-btn {
+      background: var(--accent); color: #000; border: none; border-radius: 30px;
+      padding: 15px 0; font-size: 1.8rem; font-weight: bold; width: 100%; cursor: pointer;
+    }
+    .counter-btn:active { transform: scale(0.96); }
+  </style>
+</head>
+<body>
+
+  <header><h1>أذكار الصباح</h1></header>
+
+  <div class="main-container">
+    <div class="card">
+      <div class="zekr-text" id="zekrText">loading...</div>
+      <button class="counter-btn" id="countBtn" onclick="decrement()">1</button>
+    </div>
+  </div>
+
+  <script>
+    const azkar = [
+      { text: "أعوذ بالله من الشيطان الرجيم: اللَّهُ لَا إِلَٰهَ إِلَّا هُوَ الْحَيُّ الْقَيُّومُ...", count: 1 },
+      { text: "قل هو الله أحد، قل أعوذ برب الفلق، قل أعوذ برب الناس (3 مرات)", count: 3 },
+      { text: "أصبحنا وأصبح الملك لله، والحمد لله، لا إله إلا الله وحده لا شريك له", count: 1 },
+      { text: "اللهم بك أصبحنا، وبك أمسينا، وبك نحيا، وبك نموت وإليك النشور", count: 1 },
+      { text: "سبحان الله وبحمده (100 مرة)", count: 100 },
+      { text: "أستغفر الله وأتوب إليه (100 مرة)", count: 100 }
+    ];
+
+    let currentIndex = 0;
+    let currentCount = azkar[0].count;
+
+    function updateCard() {
+      document.getElementById('zekrText').innerText = azkar[currentIndex].text;
+      document.getElementById('countBtn').innerText = currentCount;
+    }
+
+    function decrement() {
+      if (currentCount > 1) {
+        currentCount--;
+        document.getElementById('countBtn').innerText = currentCount;
+      } else {
+        if (currentIndex < azkar.length - 1) {
+          currentIndex++;
+          currentCount = azkar[currentIndex].count;
+          updateCard();
+        } else {
+          confetti();
+          alert("تم بحمد الله إتمام أذكار الصباح!");
+        }
+      }
+    }
+
+    updateCard();
+  </script>
+</body>
+</html>
