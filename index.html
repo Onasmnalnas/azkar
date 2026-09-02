@@ -27,13 +27,13 @@
             position: relative;
         }
 
-        /* زر الفهرس - ثيم وردي */
+        /* زر الفهرس */
         .menu-btn {
             position: absolute;
             top: 20px;
             right: 20px;
             background-color: #1E1E1E;
-            color: #FF80AB;
+            color: #FFC107;
             border: none;
             padding: 10px 16px;
             border-radius: 8px;
@@ -74,7 +74,7 @@
             border-bottom: 1px solid #333;
             padding-bottom: 15px;
             margin-bottom: 15px;
-            color: #FF80AB;
+            color: #FFC107;
             font-size: 1.1rem;
             font-weight: bold;
         }
@@ -82,7 +82,7 @@
         .close-btn {
             background: none;
             border: none;
-            color: #FF80AB;
+            color: #FFC107;
             font-size: 1.5rem;
             cursor: pointer;
         }
@@ -110,7 +110,7 @@
 
         .index-item:hover, .index-item.active {
             background-color: #2A2A2A;
-            color: #FF80AB;
+            color: #FFC107;
             font-weight: bold;
         }
 
@@ -191,7 +191,7 @@
 
         .header {
             font-size: 1rem;
-            color: #FF80AB;
+            color: #FFC107;
             font-weight: bold;
             margin-bottom: 15px;
             pointer-events: none;
@@ -208,8 +208,8 @@
         }
 
         .counter-btn {
-            background-color: #FF4081;
-            color: #FFFFFF;
+            background-color: #FFC107;
+            color: #121212;
             border: none;
             padding: 16px;
             border-radius: 12px;
@@ -221,7 +221,7 @@
         }
 
         .counter-btn.done {
-            background-color: #E91E63;
+            background-color: #4CAF50;
             color: #FFFFFF;
         }
 
@@ -233,8 +233,8 @@
 
         .nav-btn {
             background-color: #2A2A2A;
-            color: #FF80AB;
-            border: 1px solid #FF80AB;
+            color: #FFC107;
+            border: 1px solid #FFC107;
             padding: 12px 20px;
             border-radius: 10px;
             cursor: pointer;
@@ -386,6 +386,8 @@
         isAnimating = true;
 
         const card = document.getElementById('azkar-card');
+        
+        // ضبط خروج ودخول الصفحة حسب اتجاه اللغة العربية
         const outClass = direction === 'next' ? 'slide-out-right' : 'slide-out-left';
         const inClass = direction === 'next' ? 'slide-in-right' : 'slide-in-left';
 
@@ -411,7 +413,7 @@
             btn.innerText = `التكرار المتبقي: ${currentCount}`;
         } else {
             btn.classList.add('done');
-            btn.innerText = "أحسنتِ! أتممتِ هذا الذكر ✓";
+            btn.innerText = "أحسنت! أتممت هذا الذكر ✓";
         }
     }
 
@@ -420,8 +422,7 @@
             confetti({
                 particleCount: 80,
                 spread: 70,
-                origin: { y: 0.6 },
-                colors: ['#FF80AB', '#FF4081', '#E91E63', '#FFFFFF']
+                origin: { y: 0.6 }
             });
         }
     }
@@ -479,9 +480,12 @@
 
     function handleSwipe() {
         const threshold = 40;
+        // السحب لليمين (endX أكبر من startX): الانتقال للذكر التالي
         if (endX - startX > threshold) {
             nextCard();
-        } else if (startX - endX > threshold) {
+        } 
+        // السحب لليسار (startX أكبر من endX): العودة للذكر السابق
+        else if (startX - endX > threshold) {
             prevCard();
         }
     }
