@@ -223,6 +223,9 @@
             max-width: 500px;
             perspective: 1000px;
             margin-top: 50px;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
         }
 
         .card {
@@ -235,7 +238,7 @@
             display: flex;
             flex-direction: column;
             justify-content: space-between;
-            min-height: 480px;
+            min-height: 420px;
             text-align: center;
             user-select: none;
             position: relative;
@@ -298,7 +301,7 @@
             border-radius: 14px;
             font-size: 1.25rem;
             font-weight: bold;
-            margin: 15px 0;
+            margin: 15px 0 0 0;
             transition: background-color 0.2s;
             pointer-events: none;
         }
@@ -312,9 +315,11 @@
             display: flex;
             justify-content: space-between;
             gap: 12px;
+            width: 100%;
+            z-index: 20;
         }
 
-        /* أزرار التصفح المكبرة */
+        /* أزرار التصفح المكبرة والثابتة */
         .nav-btn {
             background-color: #2E291D;
             color: #FFE082;
@@ -330,8 +335,8 @@
             transition: all 0.2s;
             flex: 1;
             justify-content: center;
-            z-index: 20;
             height: 48px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.4);
         }
 
         .nav-btn:disabled {
@@ -339,6 +344,7 @@
             color: #665C44;
             cursor: not-allowed;
             background-color: #1A1813;
+            box-shadow: none;
         }
 
         .nav-btn:disabled .cockatiel-icon {
@@ -443,40 +449,41 @@
         <div class="counter-btn" id="count-btn">
             التكرار المتبقي: <span id="count-num">1</span>
         </div>
+    </div>
 
-        <div class="nav-controls">
-            <!-- زر السابق -->
-            <button class="nav-btn" id="prev-btn" onclick="prevCard(event)">
-                <svg class="cockatiel-icon cockatiel-prev" viewBox="0 0 100 100">
-                    <g transform="rotate(-15 50 50)">
-                        <ellipse cx="48" cy="58" rx="34" ry="32" fill="#FFFDE7" stroke="#3E2723" stroke-width="3"/>
-                        <circle cx="55" cy="38" r="24" fill="#FFE082" stroke="#3E2723" stroke-width="3"/>
-                        <path d="M 60 18 Q 85 8 92 25 Q 75 25 68 30 Z" fill="#FFE082" stroke="#3E2723" stroke-width="3"/>
-                        <circle cx="36" cy="42" r="8" fill="#FF5722"/>
-                        <circle cx="48" cy="32" r="4" fill="#3E2723"/>
-                        <circle cx="46.5" cy="30.5" r="1.5" fill="#FFFFFF"/>
-                        <ellipse cx="56" cy="44" rx="5" ry="6" fill="#FFB74D" stroke="#3E2723" stroke-width="2"/>
-                    </g>
-                </svg>
-                السابق
-            </button>
+    <!-- أزرار التحكم والطيور أصبحت خارج كارت الذكر لتبقى ثابتة تماماً عند الانزلاق -->
+    <div class="nav-controls">
+        <!-- زر السابق -->
+        <button class="nav-btn" id="prev-btn" onclick="prevCard(event)">
+            <svg class="cockatiel-icon cockatiel-prev" viewBox="0 0 100 100">
+                <g transform="rotate(-15 50 50)">
+                    <ellipse cx="48" cy="58" rx="34" ry="32" fill="#FFFDE7" stroke="#3E2723" stroke-width="3"/>
+                    <circle cx="55" cy="38" r="24" fill="#FFE082" stroke="#3E2723" stroke-width="3"/>
+                    <path d="M 60 18 Q 85 8 92 25 Q 75 25 68 30 Z" fill="#FFE082" stroke="#3E2723" stroke-width="3"/>
+                    <circle cx="36" cy="42" r="8" fill="#FF5722"/>
+                    <circle cx="48" cy="32" r="4" fill="#3E2723"/>
+                    <circle cx="46.5" cy="30.5" r="1.5" fill="#FFFFFF"/>
+                    <ellipse cx="56" cy="44" rx="5" ry="6" fill="#FFB74D" stroke="#3E2723" stroke-width="2"/>
+                </g>
+            </svg>
+            السابق
+        </button>
 
-            <!-- زر التالي -->
-            <button class="nav-btn" id="next-btn" onclick="nextCard(event)">
-                التالي
-                <svg class="cockatiel-icon cockatiel-next" viewBox="0 0 100 100">
-                    <g transform="scale(-1, 1) translate(-100, 0) rotate(-15 50 50)">
-                        <ellipse cx="48" cy="58" rx="34" ry="32" fill="#FFFDE7" stroke="#3E2723" stroke-width="3"/>
-                        <circle cx="55" cy="38" r="24" fill="#FFE082" stroke="#3E2723" stroke-width="3"/>
-                        <path d="M 60 18 Q 85 8 92 25 Q 75 25 68 30 Z" fill="#FFE082" stroke="#3E2723" stroke-width="3"/>
-                        <circle cx="36" cy="42" r="8" fill="#FF5722"/>
-                        <circle cx="48" cy="32" r="4" fill="#3E2723"/>
-                        <circle cx="46.5" cy="30.5" r="1.5" fill="#FFFFFF"/>
-                        <ellipse cx="56" cy="44" rx="5" ry="6" fill="#FFB74D" stroke="#3E2723" stroke-width="2"/>
-                    </g>
-                </svg>
-            </button>
-        </div>
+        <!-- زر التالي -->
+        <button class="nav-btn" id="next-btn" onclick="nextCard(event)">
+            التالي
+            <svg class="cockatiel-icon cockatiel-next" viewBox="0 0 100 100">
+                <g transform="scale(-1, 1) translate(-100, 0) rotate(-15 50 50)">
+                    <ellipse cx="48" cy="58" rx="34" ry="32" fill="#FFFDE7" stroke="#3E2723" stroke-width="3"/>
+                    <circle cx="55" cy="38" r="24" fill="#FFE082" stroke="#3E2723" stroke-width="3"/>
+                    <path d="M 60 18 Q 85 8 92 25 Q 75 25 68 30 Z" fill="#FFE082" stroke="#3E2723" stroke-width="3"/>
+                    <circle cx="36" cy="42" r="8" fill="#FF5722"/>
+                    <circle cx="48" cy="32" r="4" fill="#3E2723"/>
+                    <circle cx="46.5" cy="30.5" r="1.5" fill="#FFFFFF"/>
+                    <ellipse cx="56" cy="44" rx="5" ry="6" fill="#FFB74D" stroke="#3E2723" stroke-width="2"/>
+                </g>
+            </svg>
+        </button>
     </div>
 </div>
 
@@ -668,7 +675,7 @@
     }
 
     function handleCardClick(event) {
-        if (isAnimating || event.target.closest('.nav-btn') || event.target.closest('.custom-btn') || event.target.closest('.toggle-switch')) return;
+        if (isAnimating || event.target.closest('.custom-btn') || event.target.closest('.toggle-switch')) return;
 
         if (currentCount > 0) {
             currentCount--;
